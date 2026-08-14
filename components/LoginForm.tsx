@@ -434,12 +434,12 @@ export default function LoginForm() {
                   </label>
 
                   <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Your full name"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-indigo-500 focus:bg-white"
-                  />
+  type="text"
+  value={name}
+  onChange={(e) => setName(e.target.value)}
+  placeholder="Enter your full name"
+  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm text-slate-800 shadow-sm outline-none placeholder:text-slate-400 transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+/>
                 </div>
               )}
 
@@ -453,13 +453,13 @@ export default function LoginForm() {
                   <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
 
                   <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="usn@nmamit.in"
-                    autoComplete="email"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm outline-none focus:border-indigo-500 focus:bg-white"
-                  />
+  type="email"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  placeholder="usn@nmamit.in"
+  autoComplete="email"
+  className="w-full rounded-xl border border-slate-300 bg-white py-3.5 pl-10 pr-4 text-sm text-slate-800 shadow-sm outline-none placeholder:text-slate-400 transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+/>
                 </div>
               </div>
 
@@ -487,15 +487,13 @@ export default function LoginForm() {
                   <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
 
                   <input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    autoComplete={
-                      isSignUp ? "new-password" : "current-password"
-                    }
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-11 text-sm outline-none focus:border-indigo-500 focus:bg-white"
-                  />
+  type={showPassword ? "text" : "password"}
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+  placeholder="Enter your password"
+  autoComplete={isSignUp ? "new-password" : "current-password"}
+  className="w-full rounded-xl border border-slate-300 bg-white py-3.5 pl-10 pr-11 text-sm text-slate-800 shadow-sm outline-none placeholder:text-slate-400 transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+/>
 
                   <button
                     type="button"
