@@ -121,20 +121,20 @@ export default function OTPAnimation({
     });
   }, [boxSize.gap, boxSize.w, totalRowWidth]);
 
-  // 2-2-2 Hexagonal compact formation offsets relative to center (0,0)
-  // [1]   [2]
-  // [3]       [4]
-  // [5]   [6]
+  // Mathematically symmetric 6-digit circular formation
+  // 60-degree intervals (360 / 6) starting at Top (-90°):
+  // [1] Top, [2] Top-Right, [3] Bottom-Right, [4] Bottom, [5] Bottom-Left, [6] Top-Left
   const formationPositions = useMemo(() => {
-    const scale = windowWidth < 360 ? 0.85 : 1;
-    return [
-      { x: -34 * scale, y: -42 * scale, rotate: -6 },  // Top Left (1)
-      { x: 34 * scale,  y: -42 * scale, rotate: 6 },   // Top Right (2)
-      { x: -52 * scale, y: 0,          rotate: -12 },  // Mid Left (3)
-      { x: 52 * scale,  y: 0,          rotate: 12 },   // Mid Right (4)
-      { x: -34 * scale, y: 42 * scale,  rotate: -6 },  // Bottom Left (5)
-      { x: 34 * scale,  y: 42 * scale,  rotate: 6 },   // Bottom Right (6)
-    ];
+    const radius = Math.min(70, Math.max(54, windowWidth * 0.16));
+    const startAngle = -Math.PI / 2; // -90 degrees (Top)
+    const angleStep = (2 * Math.PI) / OTP_LENGTH; // 60 degrees
+
+    return Array.from({ length: OTP_LENGTH }, (_, i) => {
+      const angle = startAngle + i * angleStep;
+      const x = radius * Math.cos(angle);
+      const y = radius * Math.sin(angle);
+      return { x, y, rotate: 0 };
+    });
   }, [windowWidth]);
 
   // ── Orchestration State Machine ─────────────────────────────────
