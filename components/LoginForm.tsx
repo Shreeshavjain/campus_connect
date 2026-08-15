@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   GraduationCap,
   Mail,
@@ -16,17 +17,20 @@ import {
 } from "lucide-react";
 
 export default function LoginForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [name, setName] = useState("");
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+    setSuccessMessage("");
 
     const cleanEmail = email.trim().toLowerCase();
 
@@ -52,18 +56,51 @@ export default function LoginForm() {
 
     setIsLoading(true);
 
-    // Temporary frontend testing.
-    // Backend authentication will be connected later.
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      if (isSignUp) {
+        // ── Registration ────────────────────────────────────────────────────
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: name.trim(), email: cleanEmail, password }),
+        });
 
-      console.log({
-        name,
-        email: cleanEmail,
-        password,
-        mode: isSignUp ? "signup" : "login",
-      });
-    }, 500);
+        const json = await res.json();
+
+        if (!res.ok) {
+          setError(json.message ?? "Registration failed. Please try again.");
+          return;
+        }
+
+        // Success — switch to login with a confirmation message
+        setSuccessMessage("Account created! You can now sign in.");
+        setName("");
+        setEmail("");
+        setPassword("");
+        setIsSignUp(false);
+      } else {
+        // ── Login ───────────────────────────────────────────────────────────
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: cleanEmail, password }),
+        });
+
+        const json = await res.json();
+
+        if (!res.ok) {
+          setError(json.message ?? "Login failed. Please try again.");
+          return;
+        }
+
+        // Auth cookie is set by the server — navigate to dashboard
+        router.push("/dashboard");
+      }
+    } catch {
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const switchMode = () => {
@@ -117,6 +154,13 @@ export default function LoginForm() {
                   : "Connect with your campus community."}
               </p>
             </div>
+
+            {/* Success */}
+            {successMessage && (
+              <div className="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+                {successMessage}
+              </div>
+            )}
 
             {/* Error */}
             {error && (
@@ -416,6 +460,13 @@ export default function LoginForm() {
                 ? "Join your campus peer network"
                 : "Log in with your college credentials"}
             </p>
+
+            {/* Success */}
+            {successMessage && (
+              <div className="mt-5 rounded-xl border border-green-200 bg-green-50 p-3 text-xs font-semibold text-green-700">
+                {successMessage}
+              </div>
+            )}
 
             {/* Error */}
             {error && (
