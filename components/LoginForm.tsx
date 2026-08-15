@@ -223,9 +223,7 @@ export default function LoginForm() {
                   {!isSignUp && (
                     <button
                       type="button"
-                      onClick={() =>
-                        alert("Password reset will be connected later.")
-                      }
+                      onClick={() => router.push("/forgot-password")}
                       className="text-xs font-semibold text-indigo-600 hover:underline"
                     >
                       Forgot password?
@@ -524,9 +522,7 @@ export default function LoginForm() {
                   {!isSignUp && (
                     <button
                       type="button"
-                      onClick={() =>
-                        alert("Password reset will be connected later.")
-                      }
+                      onClick={() => router.push("/forgot-password")}
                       className="text-xs font-semibold text-indigo-600"
                     >
                       Forgot password?
