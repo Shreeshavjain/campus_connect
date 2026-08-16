@@ -25,13 +25,8 @@ type VerificationState =
   | "tooManyAttempts";
 
 const OTP_LENGTH = 6;
-const RESEND_COOLDOWN_SECONDS = 30;
+const RESEND_COOLDOWN_SECONDS = 60;
 
-/**
- * MOCK: The correct OTP for frontend testing.
- * TODO: Replace with POST /api/auth/verify-otp when backend is ready.
- */
-const MOCK_CORRECT_OTP = "123456";
 
 /** Mask an email: u***@nmamit.in */
 function maskEmail(email: string): string {
@@ -82,14 +77,24 @@ export default function OTPVerification({ email }: OTPVerificationProps) {
   /* ── Cooldown Timer ────────────────────────────────────────── */
   useEffect(() => {
     if (resendCooldown <= 0) {
-      if (cooldownRef.current) clearInterval(cooldownRef.current);
+      if (cooldownRef.current) {
+        clearInterval(cooldownRef.current);
+        cooldownRef.current = null;
+      }
       return;
+    }
+
+    if (cooldownRef.current) {
+      clearInterval(cooldownRef.current);
     }
 
     cooldownRef.current = setInterval(() => {
       setResendCooldown((prev) => {
         if (prev <= 1) {
-          if (cooldownRef.current) clearInterval(cooldownRef.current);
+          if (cooldownRef.current) {
+            clearInterval(cooldownRef.current);
+            cooldownRef.current = null;
+          }
           return 0;
         }
         return prev - 1;
@@ -97,7 +102,10 @@ export default function OTPVerification({ email }: OTPVerificationProps) {
     }, 1000);
 
     return () => {
-      if (cooldownRef.current) clearInterval(cooldownRef.current);
+      if (cooldownRef.current) {
+        clearInterval(cooldownRef.current);
+        cooldownRef.current = null;
+      }
     };
   }, [resendCooldown]);
 
@@ -121,26 +129,44 @@ export default function OTPVerification({ email }: OTPVerificationProps) {
     setAnimPhase("verifying");
     setAnimResult(null);
 
-    /**
-     * MOCK: Wait for gathering + rotation animation choreography (~1550ms)
-     * TODO: Replace with actual backend API call:
-     *   const res = await fetch("/api/auth/verify-otp", { ... });
-     */
-    await new Promise((resolve) => setTimeout(resolve, 1550));
+    try {
+      const res = await fetch("/api/auth/verify-reset-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp: enteredOTP }),
+      });
+      const data = await res.json();
 
-    const isCorrect = enteredOTP === MOCK_CORRECT_OTP;
+      if (res.ok && data.success) {
+        // Store resetToken securely in sessionStorage
+        if (data.data?.resetToken) {
+          sessionStorage.setItem("resetToken", data.data.resetToken);
+        }
+        setAnimResult(true);
+        setAnimPhase("success");
+        setVerificationState("success");
+        setSuccessMessage("Your email has been verified successfully.");
+      } else {
+        setAnimResult(false);
+        setAnimPhase("error");
 
-    if (isCorrect) {
-      setAnimResult(true);
-      setAnimPhase("success");
-      setVerificationState("success");
-      setSuccessMessage("Your email has been verified successfully.");
-    } else {
-      setAttemptCount((prev) => prev + 1);
+        if (res.status === 429) {
+          setAttemptCount(MAX_ATTEMPTS); // Fast-track to max attempts
+          setVerificationState("tooManyAttempts");
+          setErrorMessage(data.message || "Too many incorrect attempts. Please request a new code.");
+        } else {
+          setAttemptCount((prev) => prev + 1);
+          setVerificationState(
+            data.message?.includes("expired") ? "expired" : "error"
+          );
+          setErrorMessage(data.message || "Incorrect verification code. Please try again.");
+        }
+      }
+    } catch (err) {
       setAnimResult(false);
       setAnimPhase("error");
       setVerificationState("error");
-      setErrorMessage("Incorrect verification code. Please try again.");
+      setErrorMessage("Network error. Please try again later.");
     }
 
     isSubmittingRef.current = false;
@@ -173,11 +199,10 @@ export default function OTPVerification({ email }: OTPVerificationProps) {
   }, [otpFilled, isInteractive, verifyOTP]);
 
   /* ── Resend Handler ────────────────────────────────────────── */
-  const handleResend = useCallback(() => {
+  const handleResend = useCallback(async () => {
     if (resendCooldown > 0) return;
 
     setResendCooldown(RESEND_COOLDOWN_SECONDS);
-    setResendMessage("A new verification code has been sent.");
     setErrorMessage("");
     setOtpDigits(Array(OTP_LENGTH).fill(""));
     setFocusIndex(0);
@@ -185,8 +210,25 @@ export default function OTPVerification({ email }: OTPVerificationProps) {
     setAnimPhase("idle");
     setAttemptCount(0);
 
+    try {
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      
+      if (res.ok) {
+        setResendMessage(data.message || "A new verification code has been sent.");
+      } else {
+        setErrorMessage(data.message || "Failed to resend code.");
+      }
+    } catch (err) {
+      setErrorMessage("Network error. Could not resend code.");
+    }
+
     setTimeout(() => setResendMessage(""), 4000);
-  }, [resendCooldown]);
+  }, [resendCooldown, email]);
 
   /* ═══════════════════════════════════════════════════════════════
      RENDER
@@ -366,14 +408,7 @@ export default function OTPVerification({ email }: OTPVerificationProps) {
             </p>
           </div>
 
-          {/* ── Dev Hint ────────────────────────────────────────── */}
-          {process.env.NODE_ENV === "development" && (
-            <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-3 text-center">
-              <p className="text-[10px] font-medium text-amber-700">
-                🧪 Dev Mode — Mock OTP: <span className="font-mono font-bold">123456</span>
-              </p>
-            </div>
-          )}
+
         </div>
 
         {/* ── Footer ──────────────────────────────────────────── */}

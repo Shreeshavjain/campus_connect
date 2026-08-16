@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   GraduationCap,
   Lock,
@@ -11,13 +12,26 @@ import {
 } from "lucide-react";
 
 export default function ResetPasswordPage() {
+  const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [resetToken, setResetToken] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    const token = sessionStorage.getItem("resetToken");
+    if (!token) {
+      setError("Your session has expired. Please restart the password reset process.");
+    } else {
+      setResetToken(token);
+    }
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
@@ -36,14 +50,35 @@ export default function ResetPasswordPage() {
       return;
     }
 
-    /**
-     * MOCK: Password reset is not connected to a backend yet.
-     * TODO: Replace with actual API call:
-     *   await fetch("/api/auth/reset-password", { ... });
-     */
-    alert(
-      "Password reset UI is ready! Backend not connected yet.\n\nThis will later call POST /api/auth/reset-password."
-    );
+    if (!resetToken) {
+      setError("Your session has expired. Please restart the password reset process.");
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resetToken, newPassword: password, confirmPassword }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setIsSuccess(true);
+        sessionStorage.removeItem("resetToken");
+        setTimeout(() => {
+          router.push("/login");
+        }, 3000);
+      } else {
+        setError(data.message || "Failed to reset password.");
+      }
+    } catch (err) {
+      setError("Network error. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -79,8 +114,16 @@ export default function ResetPasswordPage() {
             </div>
           )}
 
+          {/* Success */}
+          {isSuccess && (
+            <div className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-center text-xs font-semibold text-emerald-700" role="alert">
+              Password reset successfully. Redirecting to login...
+            </div>
+          )}
+
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
+          {!isSuccess && (
+            <form onSubmit={handleSubmit} className="space-y-5">
             {/* New Password */}
             <div>
               <label
@@ -152,14 +195,23 @@ export default function ResetPasswordPage() {
 
             <button
               type="submit"
-              className="w-full rounded-xl bg-indigo-600 py-3.5 text-sm font-bold text-white shadow-md transition hover:bg-indigo-700"
+              disabled={isLoading || !resetToken}
+              className="w-full rounded-xl bg-indigo-600 py-3.5 text-sm font-bold text-white shadow-md transition hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span className="flex items-center justify-center gap-2">
-                Reset Password
-                <ArrowRight className="h-4 w-4" />
-              </span>
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  Resetting...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  Reset Password
+                  <ArrowRight className="h-4 w-4" />
+                </span>
+              )}
             </button>
           </form>
+          )}
         </div>
 
         <p className="mt-6 text-center text-xs text-slate-400">

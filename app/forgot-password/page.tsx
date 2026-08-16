@@ -34,16 +34,25 @@ export default function ForgotPasswordPage() {
 
     setIsLoading(true);
 
-    /**
-     * MOCK: Simulate sending OTP to the email.
-     * TODO: Replace with actual API call:
-     *   const res = await fetch("/api/auth/send-otp", {
-     *     method: "POST",
-     *     headers: { "Content-Type": "application/json" },
-     *     body: JSON.stringify({ email: cleanEmail }),
-     *   });
-     */
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: cleanEmail }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "An unexpected error occurred.");
+        setIsLoading(false);
+        return;
+      }
+    } catch (err) {
+      setError("Network error. Please try again later.");
+      setIsLoading(false);
+      return;
+    }
 
     setIsLoading(false);
 
