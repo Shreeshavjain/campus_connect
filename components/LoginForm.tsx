@@ -15,9 +15,11 @@ import {
   FlaskConical,
   Users,
 } from "lucide-react";
+import LoginCharacterScene, { AuthInteractionState } from "./auth/LoginCharacterScene";
 
 export default function LoginForm() {
   const router = useRouter();
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -26,6 +28,20 @@ export default function LoginForm() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Animation state tracking
+  const [focusedInput, setFocusedInput] = useState<"email" | "password" | "name" | null>(null);
+
+  const getInteractionState = (): AuthInteractionState => {
+    if (successMessage) return "success";
+    if (isLoading) return "submitting";
+    if (error) return "error";
+    if (focusedInput === "password") return "password_focus";
+    if (focusedInput === "email" || focusedInput === "name") return "email_focus";
+    return "idle";
+  };
+
+  const interactionState = getInteractionState();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -93,8 +109,11 @@ export default function LoginForm() {
           return;
         }
 
-        // Auth cookie is set by the server — navigate to dashboard
-        router.push("/dashboard");
+        // Trigger success animation briefly before routing
+        setSuccessMessage("Login successful! Redirecting...");
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1200); // Allow brief celebration animation
       }
     } catch {
       setError("Network error. Please check your connection and try again.");
@@ -183,6 +202,8 @@ export default function LoginForm() {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    onFocus={() => setFocusedInput("name")}
+                    onBlur={() => setFocusedInput(null)}
                     placeholder="Enter your full name"
                     className="w-full border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-800 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100"
                   />
@@ -202,6 +223,8 @@ export default function LoginForm() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    onFocus={() => setFocusedInput("email")}
+                    onBlur={() => setFocusedInput(null)}
                     placeholder="usn@nmamit.in"
                     autoComplete="email"
                     className="w-full border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-4 text-sm text-slate-800 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100"
@@ -238,6 +261,8 @@ export default function LoginForm() {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onFocus={() => setFocusedInput("password")}
+                    onBlur={() => setFocusedInput(null)}
                     placeholder="Enter your password"
                     autoComplete={
                       isSignUp ? "new-password" : "current-password"
@@ -373,6 +398,9 @@ export default function LoginForm() {
               <div className="absolute bottom-12 right-24 flex h-12 w-12 items-center justify-center rounded-xl border border-purple-200 bg-purple-50">
                 <FlaskConical className="h-6 w-6 text-purple-500" />
               </div>
+
+              {/* Desktop Animated Character */}
+              <LoginCharacterScene state={interactionState} />
             </div>
 
             {/* Feature cards */}
@@ -433,7 +461,10 @@ export default function LoginForm() {
 
           {/* Mobile Branding */}
           <div className="mb-7 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50">
+            {/* Mobile Animated Character */}
+            <LoginCharacterScene state={interactionState} isMobile={true} />
+            
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 relative z-20">
               <GraduationCap className="h-7 w-7 text-indigo-700" />
             </div>
 
@@ -486,6 +517,8 @@ export default function LoginForm() {
   type="text"
   value={name}
   onChange={(e) => setName(e.target.value)}
+  onFocus={() => setFocusedInput("name")}
+  onBlur={() => setFocusedInput(null)}
   placeholder="Enter your full name"
   className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm text-slate-800 shadow-sm outline-none placeholder:text-slate-400 transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
 />
@@ -505,6 +538,8 @@ export default function LoginForm() {
   type="email"
   value={email}
   onChange={(e) => setEmail(e.target.value)}
+  onFocus={() => setFocusedInput("email")}
+  onBlur={() => setFocusedInput(null)}
   placeholder="usn@nmamit.in"
   autoComplete="email"
   className="w-full rounded-xl border border-slate-300 bg-white py-3.5 pl-10 pr-4 text-sm text-slate-800 shadow-sm outline-none placeholder:text-slate-400 transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
@@ -537,6 +572,8 @@ export default function LoginForm() {
   type={showPassword ? "text" : "password"}
   value={password}
   onChange={(e) => setPassword(e.target.value)}
+  onFocus={() => setFocusedInput("password")}
+  onBlur={() => setFocusedInput(null)}
   placeholder="Enter your password"
   autoComplete={isSignUp ? "new-password" : "current-password"}
   className="w-full rounded-xl border border-slate-300 bg-white py-3.5 pl-10 pr-11 text-sm text-slate-800 shadow-sm outline-none placeholder:text-slate-400 transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
