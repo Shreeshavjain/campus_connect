@@ -1,0 +1,135 @@
+warning: in the working copy of 'models/User.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'types/index.ts', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/models/User.ts b/models/User.ts[m
+[1mindex 79504a6..b05a219 100644[m
+[1m--- a/models/User.ts[m
+[1m+++ b/models/User.ts[m
+[36m@@ -13,6 +13,11 @@[m [mexport interface IUser extends Document {[m
+   name: string;[m
+   email: string;[m
+   passwordHash: string;[m
+[32m+[m[32m  campus?: string;[m
+[32m+[m[32m  branch?: string;[m
+[32m+[m[32m  year?: number;[m
+[32m+[m[32m  skills?: string[];[m
+[32m+[m[32m  interests?: string[];[m
+   createdAt: Date;[m
+   updatedAt: Date;[m
+ }[m
+[36m@@ -41,6 +46,35 @@[m [mconst UserSchema = new Schema<IUser>([m
+       // Never select passwordHash by default[m
+       select: false,[m
+     },[m
+[32m+[m
+[32m+[m[32m    campus: {[m
+[32m+[m[32m      type: String,[m
+[32m+[m[32m      trim: true,[m
+[32m+[m[32m      default: null,[m
+[32m+[m[32m    },[m
+[32m+[m
+[32m+[m[32m    branch: {[m
+[32m+[m[32m      type: String,[m
+[32m+[m[32m      trim: true,[m
+[32m+[m[32m      default: null,[m
+[32m+[m[32m    },[m
+[32m+[m
+[32m+[m[32m    year: {[m
+[32m+[m[32m      type: Number,[m
+[32m+[m[32m      min: 1,[m
+[32m+[m[32m      max: 8,[m
+[32m+[m[32m      default: null,[m
+[32m+[m[32m    },[m
+[32m+[m
+[32m+[m[32m    skills: {[m
+[32m+[m[32m      type: [String],[m
+[32m+[m[32m      default: [],[m
+[32m+[m[32m    },[m
+[32m+[m
+[32m+[m[32m    interests: {[m
+[32m+[m[32m      type: [String],[m
+[32m+[m[32m      default: [],[m
+[32m+[m[32m    },[m
+   },[m
+   {[m
+     timestamps: true, // Adds createdAt + updatedAt automatically[m
+[36m@@ -51,6 +85,9 @@[m [mconst UserSchema = new Schema<IUser>([m
+ // but making it explicit improves clarity and ensures MongoDB creates it.[m
+ UserSchema.index({ email: 1 });[m
+ [m
+[32m+[m[32m// Optional profile filter index for student discovery/recommendations.[m
+[32m+[m[32mUserSchema.index({ campus: 1, branch: 1, year: 1 });[m
+[32m+[m
+ /**[m
+  * Exported User model.[m
+  * The singleton guard prevents Mongoose from re-registering the model[m
+[1mdiff --git a/types/index.ts b/types/index.ts[m
+[1mindex ead6b90..13f5627 100644[m
+[1m--- a/types/index.ts[m
+[1m+++ b/types/index.ts[m
+[36m@@ -25,3 +25,66 @@[m [mexport interface SafeUser {[m
+   email: string;[m
+   createdAt: Date;[m
+ }[m
+[32m+[m
+[32m+[m[32mexport type RequestStatus = "pending" | "accepted" | "rejected" | "cancelled" | "completed";[m
+[32m+[m[32mexport type RequestType = "FREE" | "SKILL_SWAP";[m
+[32m+[m
+[32m+[m[32mexport interface DashboardStats {[m
+[32m+[m[32m  connections: number;[m
+[32m+[m[32m  incomingPendingRequests: number;[m
+[32m+[m[32m  unreadMessages: number;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mexport interface DashboardStudent {[m
+[32m+[m[32m  id: string;[m
+[32m+[m[32m  name: string;[m
+[32m+[m[32m  campus?: string;[m
+[32m+[m[32m  branch?: string;[m
+[32m+[m[32m  year?: number;[m
+[32m+[m[32m  commonSkills: string[];[m
+[32m+[m[32m  commonInterests: string[];[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mexport interface DashboardRecentRequest {[m
+[32m+[m[32m  id: string;[m
+[32m+[m[32m  type: RequestType;[m
+[32m+[m[32m  title: string;[m
+[32m+[m[32m  status: RequestStatus;[m
+[32m+[m[32m  createdAt: Date;[m
+[32m+[m[32m  direction: "sent" | "received";[m
+[32m+[m[32m  message?: string;[m
+[32m+[m[32m  counterpart: {[m
+[32m+[m[32m    id: string;[m
+[32m+[m[32m    name: string;[m
+[32m+[m[32m    campus?: string;[m
+[32m+[m[32m    branch?: string;[m
+[32m+[m[32m    year?: number;[m
+[32m+[m[32m  };[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mexport interface DashboardCollaboration {[m
+[32m+[m[32m  id: string;[m
+[32m+[m[32m  title: string;[m
+[32m+[m[32m  status: string;[m
+[32m+[m[32m  startedAt?: Date;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mexport interface DashboardData {[m
+[32m+[m[32m  stats: DashboardStats;[m
+[32m+[m[32m  students: DashboardStudent[];[m
+[32m+[m[32m  recentRequests: DashboardRecentRequest[];[m
+[32m+[m[32m  collaborations: {[m
+[32m+[m[32m    supported: boolean;[m
+[32m+[m[32m    active: DashboardCollaboration[];[m
+[32m+[m[32m  };[m
+[32m+[m[32m  notifications: {[m
+[32m+[m[32m    supported: boolean;[m
+[32m+[m[32m    unreadCount: number;[m
+[32m+[m[32m  };[m
+[32m+[m[32m  capabilities: {[m
+[32m+[m[32m    requests: boolean;[m
+[32m+[m[32m    unreadMessages: boolean;[m
+[32m+[m[32m    notifications: boolean;[m
+[32m+[m[32m    collaborations: boolean;[m
+[32m+[m[32m  };[m
+[32m+[m[32m}[m

@@ -25,3 +25,66 @@ export interface SafeUser {
   email: string;
   createdAt: Date;
 }
+
+export type RequestStatus = "pending" | "accepted" | "rejected" | "cancelled" | "completed";
+export type RequestType = "FREE" | "SKILL_SWAP";
+
+export interface DashboardStats {
+  connections: number;
+  incomingPendingRequests: number;
+  unreadMessages: number;
+}
+
+export interface DashboardStudent {
+  id: string;
+  name: string;
+  campus?: string;
+  branch?: string;
+  year?: number;
+  commonSkills: string[];
+  commonInterests: string[];
+}
+
+export interface DashboardRecentRequest {
+  id: string;
+  type: RequestType;
+  title: string;
+  status: RequestStatus;
+  createdAt: Date;
+  direction: "sent" | "received";
+  message?: string;
+  counterpart: {
+    id: string;
+    name: string;
+    campus?: string;
+    branch?: string;
+    year?: number;
+  };
+}
+
+export interface DashboardCollaboration {
+  id: string;
+  title: string;
+  status: string;
+  startedAt?: Date;
+}
+
+export interface DashboardData {
+  stats: DashboardStats;
+  students: DashboardStudent[];
+  recentRequests: DashboardRecentRequest[];
+  collaborations: {
+    supported: boolean;
+    active: DashboardCollaboration[];
+  };
+  notifications: {
+    supported: boolean;
+    unreadCount: number;
+  };
+  capabilities: {
+    requests: boolean;
+    unreadMessages: boolean;
+    notifications: boolean;
+    collaborations: boolean;
+  };
+}
