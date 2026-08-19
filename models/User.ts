@@ -13,6 +13,11 @@ export interface IUser extends Document {
   name: string;
   email: string;
   passwordHash: string;
+  campus?: string;
+  branch?: string;
+  year?: number;
+  skills?: string[];
+  interests?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -41,6 +46,35 @@ const UserSchema = new Schema<IUser>(
       // Never select passwordHash by default
       select: false,
     },
+
+    campus: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+
+    branch: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+
+    year: {
+      type: Number,
+      min: 1,
+      max: 8,
+      default: null,
+    },
+
+    skills: {
+      type: [String],
+      default: [],
+    },
+
+    interests: {
+      type: [String],
+      default: [],
+    },
   },
   {
     timestamps: true, // Adds createdAt + updatedAt automatically
@@ -50,6 +84,9 @@ const UserSchema = new Schema<IUser>(
 // Compound index — email already has a unique index from `unique: true`,
 // but making it explicit improves clarity and ensures MongoDB creates it.
 UserSchema.index({ email: 1 });
+
+// Optional profile filter index for student discovery/recommendations.
+UserSchema.index({ campus: 1, branch: 1, year: 1 });
 
 /**
  * Exported User model.
