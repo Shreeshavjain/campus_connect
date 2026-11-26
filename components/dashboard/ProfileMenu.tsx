@@ -2,6 +2,7 @@
 
 import { ChevronDown, User, Settings, LogOut } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function ProfileMenu() {
   const [open, setOpen] = useState(false);
@@ -33,10 +34,14 @@ export default function ProfileMenu() {
       {open && (
         <div className="absolute right-0 top-12 z-50 w-48 rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
 
-          <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50">
+          <Link
+            href="/profile"
+            onClick={() => setOpen(false)}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+          >
             <User className="h-4 w-4" />
             Profile
-          </button>
+          </Link>
 
           <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50">
             <Settings className="h-4 w-4" />

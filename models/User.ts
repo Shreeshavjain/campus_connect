@@ -8,6 +8,11 @@
  */
 
 import mongoose, { Document, Schema } from "mongoose";
+import type {
+  ProfileAchievement,
+  ProfileProject,
+  ProfileSocialLinks,
+} from "@/types";
 
 export interface IUser extends Document {
   name: string;
@@ -18,9 +23,46 @@ export interface IUser extends Document {
   year?: number;
   skills?: string[];
   interests?: string[];
+  bio?: string;
+  socialLinks?: ProfileSocialLinks;
+  projects?: ProfileProject[];
+  achievements?: ProfileAchievement[];
   createdAt: Date;
   updatedAt: Date;
 }
+
+const SocialLinksSchema = new Schema<ProfileSocialLinks>(
+  {
+    github: { type: String, trim: true, default: "" },
+    linkedin: { type: String, trim: true, default: "" },
+    portfolio: { type: String, trim: true, default: "" },
+    instagram: { type: String, trim: true, default: "" },
+  },
+  { _id: false }
+);
+
+const ProjectSchema = new Schema<ProfileProject>(
+  {
+    id: { type: String, required: true },
+    title: { type: String, required: true, trim: true, maxlength: 120 },
+    description: { type: String, trim: true, maxlength: 1000, default: "" },
+    technologies: { type: [String], default: [] },
+    githubUrl: { type: String, trim: true, default: "" },
+    liveUrl: { type: String, trim: true, default: "" },
+  },
+  { _id: false }
+);
+
+const AchievementSchema = new Schema<ProfileAchievement>(
+  {
+    id: { type: String, required: true },
+    title: { type: String, required: true, trim: true, maxlength: 120 },
+    category: { type: String, required: true, trim: true, maxlength: 50 },
+    description: { type: String, trim: true, maxlength: 500, default: "" },
+    date: { type: String, trim: true, maxlength: 30, default: "" },
+  },
+  { _id: false }
+);
 
 const UserSchema = new Schema<IUser>(
   {
@@ -73,6 +115,28 @@ const UserSchema = new Schema<IUser>(
 
     interests: {
       type: [String],
+      default: [],
+    },
+
+    bio: {
+      type: String,
+      trim: true,
+      maxlength: [500, "Bio must be at most 500 characters."],
+      default: "",
+    },
+
+    socialLinks: {
+      type: SocialLinksSchema,
+      default: () => ({}),
+    },
+
+    projects: {
+      type: [ProjectSchema],
+      default: [],
+    },
+
+    achievements: {
+      type: [AchievementSchema],
       default: [],
     },
   },

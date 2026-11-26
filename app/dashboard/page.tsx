@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import StatsCards from "@/components/dashboard/StatsCards";
 import StudentSection from "@/components/dashboard/StudentSection";
@@ -68,7 +69,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <a
+          <Link
             href="/students"
             className="group rounded-xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-sm"
           >
@@ -77,7 +78,7 @@ export default function DashboardPage() {
             </div>
             <p className="text-sm font-semibold text-slate-900">Find Students</p>
             <p className="mt-1 text-xs text-slate-400">Discover classmates</p>
-          </a>
+          </Link>
 
           <a
             href="/requests"

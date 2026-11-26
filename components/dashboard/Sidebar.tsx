@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
@@ -65,7 +66,7 @@ export default function Sidebar({
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden h-screen w-[250px] shrink-0 border-r border-slate-200 bg-white lg:flex lg:flex-col">
+      <aside className="sticky top-0 hidden h-screen w-[250px] shrink-0 self-start border-r border-slate-200 bg-white lg:flex lg:flex-col">
 
         {/* Logo */}
         <div className="flex h-[76px] items-center border-b border-slate-100 px-6">
@@ -154,11 +155,15 @@ function SidebarNavigation({
 }: {
   onNavigate?: () => void;
 }) {
+  const pathname = usePathname();
+
   return (
     <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-5">
 
       {navigation.map((item) => {
         const Icon = item.icon;
+
+        const isActive = pathname === item.href;
 
         return (
           <Link
@@ -166,7 +171,7 @@ function SidebarNavigation({
             href={item.href}
             onClick={onNavigate}
             className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-              item.label === "Dashboard"
+              isActive
                 ? "bg-indigo-50 text-indigo-700"
                 : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
             }`}
@@ -187,10 +192,13 @@ function SidebarBottom() {
   return (
     <div className="border-t border-slate-100 px-3 py-4">
 
-      <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50">
+      <Link
+        href="/profile"
+        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
+      >
         <User className="h-[18px] w-[18px]" />
         Profile
-      </button>
+      </Link>
 
       <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50">
         <Settings className="h-[18px] w-[18px]" />
