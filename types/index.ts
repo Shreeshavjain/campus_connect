@@ -26,6 +26,50 @@ export interface SafeUser {
   createdAt: Date;
 }
 
+export interface ProfileSocialLinks {
+  github: string;
+  linkedin: string;
+  portfolio: string;
+  instagram: string;
+}
+
+export interface ProfileProject {
+  id: string;
+  title: string;
+  description: string;
+  technologies: string[];
+  githubUrl: string;
+  liveUrl: string;
+}
+
+export interface ProfileAchievement {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  date: string;
+}
+
+export interface StudentProfile {
+  id: string;
+  name: string;
+  email?: string;
+  campus: string;
+  branch: string;
+  year: number | null;
+  bio: string;
+  skills: string[];
+  interests: string[];
+  socialLinks: ProfileSocialLinks;
+  projects: ProfileProject[];
+  achievements: ProfileAchievement[];
+  createdAt: string;
+}
+
+export type PublicStudentProfile = Omit<StudentProfile, "email">;
+
+export type ProfileUpdate = Omit<StudentProfile, "id" | "email" | "createdAt">;
+
 export type RequestStatus = "pending" | "accepted" | "rejected" | "cancelled" | "completed";
 export type RequestType = "FREE" | "SKILL_SWAP";
 

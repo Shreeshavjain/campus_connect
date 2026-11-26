@@ -192,10 +192,13 @@ function SidebarBottom() {
   return (
     <div className="border-t border-slate-100 px-3 py-4">
 
-      <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50">
+      <Link
+        href="/profile"
+        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
+      >
         <User className="h-[18px] w-[18px]" />
         Profile
-      </button>
+      </Link>
 
       <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50">
         <Settings className="h-[18px] w-[18px]" />
