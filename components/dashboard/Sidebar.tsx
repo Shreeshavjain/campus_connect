@@ -11,10 +11,10 @@ import {
   Bell,
   User,
   Settings,
-  LogOut,
   GraduationCap,
   X,
 } from "lucide-react";
+import LogoutButton from "@/components/auth/LogoutButton";
 
 const navigation = [
   {
@@ -205,10 +205,10 @@ function SidebarBottom() {
         Settings
       </button>
 
-      <button className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 hover:bg-red-50 hover:text-red-600">
-        <LogOut className="h-[18px] w-[18px]" />
-        Logout
-      </button>
+      <LogoutButton
+        className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 hover:bg-red-50 hover:text-red-600"
+        iconClassName="h-[18px] w-[18px]"
+      />
 
     </div>
   );

@@ -1,11 +1,34 @@
 "use client";
 
-import { ChevronDown, User, Settings, LogOut } from "lucide-react";
-import { useState } from "react";
+import { ChevronDown, User, Settings } from "lucide-react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import LogoutButton from "@/components/auth/LogoutButton";
+import type { ApiResponse, SafeUser } from "@/types";
 
 export default function ProfileMenu() {
   const [open, setOpen] = useState(false);
+  const [name, setName] = useState("Student");
+
+  useEffect(() => {
+    let active = true;
+
+    fetch("/api/auth/me", { cache: "no-store" })
+      .then(async (response) => {
+        const result: ApiResponse<SafeUser> = await response.json();
+        if (active && response.ok && result.success && result.data?.name.trim()) {
+          setName(result.data.name.trim());
+        }
+      })
+      .catch((error: unknown) => {
+        console.error("Authenticated student name fetch error:", error);
+        // Keep the generic name if the profile cannot be loaded.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <div className="relative">
@@ -15,12 +38,12 @@ export default function ProfileMenu() {
         className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50"
       >
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700">
-          S
+          {name.charAt(0).toUpperCase()}
         </div>
 
         <div className="hidden text-left sm:block">
           <p className="text-xs font-semibold text-slate-800">
-            Student
+            {name}
           </p>
 
           <p className="text-[10px] text-slate-400">
@@ -50,10 +73,7 @@ export default function ProfileMenu() {
 
           <div className="my-1 border-t border-slate-100" />
 
-          <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50">
-            <LogOut className="h-4 w-4" />
-            Logout
-          </button>
+          <LogoutButton className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50" />
 
         </div>
       )}
