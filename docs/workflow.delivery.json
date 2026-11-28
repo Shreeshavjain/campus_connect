@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "9b9ae5c9-e53f-480e-88f7-36460b23cf36",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "D:\\Shreesha\\code\\campus_connect\\.archify\\campus-connect-20261125-192200\\workflow.candidate.json",
+  "output": "D:\\Shreesha\\code\\campus_connect\\docs\\workflow.html",
+  "specification": {
+    "sha256": "8e92b48a399e0381fccf056596849156c33880c554aa9ad61f1cf3370cbc2daf",
+    "bytes": 5995
+  },
+  "artifact": {
+    "sha256": "46c7059ea4f37dffa084f5644005e20412b741987c60cc6cc60b6d509a2a83c1",
+    "bytes": 944474
+  }
+}
