@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "fail",
+  "type": "workflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "D:\\Shreesha\\code\\campus_connect\\.archify\\campus-connect-20261125-192200\\workflow.candidate.json",
+    "sha256": "8e92b48a399e0381fccf056596849156c33880c554aa9ad61f1cf3370cbc2daf",
+    "bytes": 5995
+  },
+  "artifact": {
+    "path": "D:\\Shreesha\\code\\campus_connect\\docs\\workflow.html",
+    "sha256": "46c7059ea4f37dffa084f5644005e20412b741987c60cc6cc60b6d509a2a83c1",
+    "bytes": 944474
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "fail"
+  },
+  "failedStage": "browser-check",
+  "diagnostics": [
+    {
+      "code": "viewer/evidence-path-conflict",
+      "severity": "error",
+      "message": "browser-check will not replace the existing unowned evidence path \"D:\\Shreesha\\code\\campus_connect\\docs\\workflow.browser-check.json\".",
+      "subject": {
+        "artifact": "D:\\Shreesha\\code\\campus_connect\\docs\\workflow.html",
+        "evidencePath": "D:\\Shreesha\\code\\campus_connect\\docs\\workflow.browser-check.json"
+      },
+      "evidence": {
+        "reason": {
+          "code": "ownership-artifact-mismatch"
+        }
+      },
+      "supportedFixes": [
+        "move the conflicting file aside, or choose a separate --out-dir, then rerun browser-check"
+      ]
+    }
+  ],
+  "diagnosticSummary": {
+    "total": 1,
+    "shown": 1,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "D:\\Shreesha\\code\\campus_connect\\docs\\workflow.finalize.json",
+    "summaryReceipt": "D:\\Shreesha\\code\\campus_connect\\docs\\workflow.finalize-summary.json",
+    "browserCheckReceipt": "D:\\Shreesha\\code\\campus_connect\\docs\\workflow.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.3.1",
+    "availableVersion": "3.3.1",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-25T13:42:20.572Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 1644,
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  }
+}

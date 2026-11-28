@@ -87,6 +87,64 @@ export interface DashboardStudent {
   year?: number;
   commonSkills: string[];
   commonInterests: string[];
+  reasons?: string[];
+}
+
+export type StudentConnectionStatus =
+  | "none"
+  | "pending_sent"
+  | "pending_received"
+  | "connected";
+
+export type StudentDiscoveryFilter =
+  | "for_you"
+  | "same_class"
+  | "same_clubs"
+  | "skills"
+  | "all";
+
+export interface DiscoveryStudent {
+  id: string;
+  name: string;
+  campus?: string;
+  branch?: string;
+  year?: number;
+  bio?: string;
+  skills: string[];
+  interests: string[];
+  commonSkills: string[];
+  commonInterests: string[];
+  reasons: string[];
+  score: number;
+  connectionStatus: StudentConnectionStatus;
+  pendingRequestId?: string;
+  conversationId?: string;
+}
+
+export interface StudentDiscoveryData {
+  recommendations: DiscoveryStudent[];
+  students: DiscoveryStudent[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasMore: boolean;
+  };
+  filters: {
+    availableSkills: string[];
+    currentUserContext: {
+      campus: string;
+      branch: string;
+      year: number | null;
+      skillsCount: number;
+      interestsCount: number;
+    };
+  };
+  capabilities: {
+    clubs: boolean;
+    section: boolean;
+  };
 }
 
 export interface DashboardRecentRequest {
