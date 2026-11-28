@@ -77,7 +77,8 @@ function toDiscoveryStudent(
 
 async function getRecommendations(
   currentUser: RecommendationProfile,
-  excludedIds: mongoose.Types.ObjectId[],
+  userObjectId: mongoose.Types.ObjectId,
+  relationshipIndex: Awaited<ReturnType<typeof getUserRelationshipIndex>>,
   limit: number
 ): Promise<DiscoveryStudent[]> {
   const traitClauses: Record<string, unknown>[] = [];
@@ -104,7 +105,7 @@ async function getRecommendations(
   let candidates: RecommendationProfile[] = [];
   if (traitClauses.length > 0) {
     candidates = await User.find({
-      _id: { $nin: excludedIds },
+      _id: { $ne: userObjectId },
       $or: traitClauses,
     })
       .select(PUBLIC_STUDENT_FIELDS)
@@ -112,15 +113,13 @@ async function getRecommendations(
       .lean<RecommendationProfile[]>();
   }
 
-  if (candidates.length < limit) {
-    const existingIds = new Set(candidates.map((c) => c._id.toString()));
-    const fallbackExclude = [
-      ...excludedIds,
-      ...candidates.map((c) => c._id),
-    ];
-    const extra = await User.find({ _id: { $nin: fallbackExclude } })
+  if (candidates.length < MAX_RANKED_POOL) {
+    const existingIds = candidates.map((c) => c._id);
+    const extra = await User.find({
+      _id: { $nin: [userObjectId, ...existingIds] },
+    })
       .select(PUBLIC_STUDENT_FIELDS)
-      .limit(MAX_RANKED_POOL - existingIds.size)
+      .limit(MAX_RANKED_POOL - existingIds.length)
       .lean<RecommendationProfile[]>();
     candidates = [...candidates, ...extra];
   }
@@ -131,7 +130,9 @@ async function getRecommendations(
     limit,
   });
 
-  return ranked.map((item) => toDiscoveryStudent(item));
+  return ranked.map((item) =>
+    toDiscoveryStudent(item, relationshipIndex.byCounterpartId.get(item.id))
+  );
 }
 
 export async function GET(request: Request) {
@@ -199,13 +200,9 @@ export async function GET(request: Request) {
       ]),
     ]);
 
-    const excludedIds = Array.from(
-      relationshipIndex.excludedFromRecommendations
-    ).map((id) => new mongoose.Types.ObjectId(id));
-
     const recommendations =
       page === 1
-        ? await getRecommendations(currentUser, excludedIds, 6)
+        ? await getRecommendations(currentUser, userObjectId, relationshipIndex, 6)
         : [];
 
     let students: DiscoveryStudent[] = [];
@@ -219,7 +216,8 @@ export async function GET(request: Request) {
       students = [];
       total = 0;
     } else if (typedFilter === "for_you") {
-      const query: Record<string, unknown> = { _id: { $nin: excludedIds } };
+      // Exclude only the current user; ranking determines order, not eligibility.
+      const query: Record<string, unknown> = { _id: { $ne: userObjectId } };
       if (searchCondition) Object.assign(query, searchCondition);
 
       const pool = await User.find(query)

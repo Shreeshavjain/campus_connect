@@ -245,8 +245,7 @@ export default function StudentDiscovery() {
       );
 
     setStudents(patchList);
-    // Exclude newly requested/connected students from top recommendations
-    setRecommendations((prev) => prev.filter((s) => s.id !== studentId));
+    setRecommendations(patchList);
   };
 
   const handleSendConnection = async (payload: {
@@ -332,6 +331,14 @@ export default function StudentDiscovery() {
     recommendations.length > 0 &&
     !debouncedQuery &&
     activeFilter === "for_you";
+
+  const topRecommendations = showRecommendationsSection
+    ? recommendations.slice(0, 3)
+    : [];
+  const recommendedIds = new Set(topRecommendations.map((s) => s.id));
+  const directoryStudents = showRecommendationsSection
+    ? students.filter((s) => !recommendedIds.has(s.id))
+    : students;
 
   return (
     <DashboardLayout>
@@ -496,7 +503,7 @@ export default function StudentDiscovery() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {recommendations.slice(0, 3).map((student) => (
+            {topRecommendations.map((student) => (
               <StudentCard
                 key={`rec-${student.id}`}
                 student={student}
@@ -534,8 +541,11 @@ export default function StudentDiscovery() {
             </h2>
             {!loading && !error && pagination && activeFilter !== "same_clubs" && (
               <p className="mt-0.5 text-xs text-slate-500">
-                Showing {students.length} of {pagination.total}{" "}
-                {pagination.total === 1 ? "student" : "students"}
+                Showing {directoryStudents.length} of{" "}
+                {Math.max(0, pagination.total - topRecommendations.length)}{" "}
+                {Math.max(0, pagination.total - topRecommendations.length) === 1
+                  ? "student"
+                  : "students"}
               </p>
             )}
           </div>
@@ -589,8 +599,19 @@ export default function StudentDiscovery() {
               Browse For You
             </button>
           </div>
-        ) : students.length === 0 ? (
+        ) : directoryStudents.length === 0 ? (
           /* Empty State */
+          showRecommendationsSection ? (
+            <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-8 text-center">
+              <p className="text-xs text-slate-500">
+                All currently registered students are shown in{" "}
+                <span className="font-semibold text-slate-700">
+                  Recommended For You
+                </span>{" "}
+                above.
+              </p>
+            </div>
+          ) : (
           <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 py-14 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
               <Users className="h-6 w-6" />
@@ -641,10 +662,11 @@ export default function StudentDiscovery() {
               )}
             </div>
           </div>
+          )
         ) : (
           <>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {students.map((student) => (
+              {directoryStudents.map((student) => (
                 <StudentCard
                   key={student.id}
                   student={student}

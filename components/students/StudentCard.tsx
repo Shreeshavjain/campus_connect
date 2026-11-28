@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import {
-  Check,
   Clock,
   GraduationCap,
+  MessageCircle,
   Sparkles,
   UserCheck,
   UserPlus,
@@ -176,7 +176,7 @@ export default function StudentCard({
             className="flex flex-1 cursor-not-allowed items-center justify-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700"
           >
             <Clock className="h-3.5 w-3.5" />
-            Request Sent
+            Pending
           </button>
         )}
 
@@ -188,19 +188,18 @@ export default function StudentCard({
             className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <UserCheck className="h-3.5 w-3.5" />
-            {busy ? "Accepting..." : "Accept"}
+            {busy ? "Accepting..." : "Accept Request"}
           </button>
         )}
 
         {student.connectionStatus === "connected" && (
-          <button
-            type="button"
-            disabled
-            className="flex flex-1 cursor-not-allowed items-center justify-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700"
+          <Link
+            href="/messages"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100"
           >
-            <Check className="h-3.5 w-3.5" />
-            Connected
-          </button>
+            <MessageCircle className="h-3.5 w-3.5" />
+            Message
+          </Link>
         )}
       </div>
     </article>
